@@ -1,0 +1,88 @@
+---
+title: "Risk Factors for Stroke in Blacks"
+author: "Min Wu"
+date: "2/26/2020"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{risk_for_stroke}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(ggalluvial)
+library(reshape2)
+library(readxl)
+```
+
+## Import summary table from excel file
+
+```{r import, echo=FALSE}
+df <- read_excel("../inst/extdata/Stacked_column_stroke_blacks_noAF.xlsx", 
+                 sheet = "Data", range = "A1:F6")
+print.data.frame(df)
+```
+
+## Sankey plot
+
+```{r extract_vars}
+title <- colnames(df)[1]
+first_year <- colnames(df)[2]
+border <- 1
+```
+
+## Explode the data from 2 dimensions to 1
+
+```{r melt}
+rdf <- melt(df, id = title)
+names(rdf) <- c("risk_factor", "year", "risk")
+```
+
+## Create the plot
+
+```{r plot}
+ggplot(rdf,
+       aes(y = risk, x = year, stratum = risk_factor, alluvium = risk_factor)) +
+    # The alluvium is the ribbon between stratum
+    geom_alluvium(aes(fill = risk_factor), alpha = 1, colour = "white", size = border, width = 3/4, knot.pos = 0, decreasing = FALSE) +
+    # The stratum is the rectangles between alluvium
+    geom_stratum(aes(fill = risk_factor), alpha = 1, colour = "white", size = border, width = 3/4, decreasing = FALSE) +
+    # Risk values labelled on the stratum
+    geom_text(aes(label = sprintf("%0.2f", round(risk, 2))), colour = "white", size = 3, stat = "stratum", decreasing = FALSE) +
+    # Risk factor (y-axis) labels
+    geom_text(aes(label = ifelse(year == first_year, as.character(risk_factor),"")), nudge_x = -1.5, hjust = 0, colour = "black", size = 3, stat = "stratum", decreasing = FALSE) +
+    # Select colours
+    scale_fill_manual(values = c("#CC6655", "#CC8844", "#88BB88", "#366092", "#6699CC")) +
+    # Year (x-axis) label adjusted position
+    scale_x_discrete(position = "top") +
+    # Set the title of plot
+    ggtitle(title) +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.line = element_blank(),
+          axis.ticks = element_blank(),
+          panel.background = element_blank(),
+          plot.background = element_blank(),
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          plot.title = element_text(hjust = 1/2),
+          axis.title.x = element_blank(),
+          axis.text.x = element_text(color="black", size=rel(1)),
+          legend.position = "none")
+```
+
+## Examples of border options
+
+```{r borders}
+library(excelsankey)
+excel_sankey(df, TRUE)
+excel_sankey(df, FALSE)
+```

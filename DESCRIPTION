@@ -1,0 +1,20 @@
+Package: excelsankey
+Type: Package
+Title: Create Excel-style Sankey Diagram
+Version: 0.1.0
+Author: Min Wu
+Maintainer: Min Wu <minwu0617@gmail.com>
+Description: Creates Sankey Diagram to show how K groups of a measure change over N intervals.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    ggplot2,
+    ggalluvial,
+    reshape2
+Suggests:
+    knitr,
+    readxl,
+    rmarkdown
+RoxygenNote: 7.0.2
+VignetteBuilder: knitr
